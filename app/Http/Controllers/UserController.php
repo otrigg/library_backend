@@ -12,17 +12,16 @@ class UserController extends Controller
     public function login(Request $request)
     {
 
-        // validation
-        $validator      =       Validator::make(
+        $validator = Validator::make(
             $request->all(),
             [
-                'username'          =>     'required|string',
-                'password'          =>     'required|string'
+                'username' => 'required|string',
+                'password' => 'required|string'
             ]
         );
 
         if ($validator->fails()) {
-            return response()->json(["validation_errors" => $validator->errors()]);
+            return response()->json(["validation_errors" => $validator->errors()], 400);
         }
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
@@ -34,16 +33,19 @@ class UserController extends Controller
                 "success" => true,
                 "login" => true,
                 "token" => $token,
-                "data" => $user]);
+                "data" => $user
+            ]);
         } else {
             return response()->json([
                 "status" => "failed",
                 "success" => false,
-                "message" => "Login error"]);
+                "message" => "Login error"
+            ], 401);
         }
     }
 
-    public function doLogin() {
+    public function doLogin()
+    {
         return response()->json(['message' => 'you must login'], 403);
     }
 }
