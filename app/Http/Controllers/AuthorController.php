@@ -75,7 +75,17 @@ class AuthorController extends Controller
             'country'   => $request->country,
         ]);
 
-        return response()->json($author, 201);
+        $fractal = new Manager();
+
+        $resource = new Item($author, function(Author $author) {
+            return [
+                'id'            => (int) $author->id,
+                'name'          => $author->name,
+                'surname'       => $author->surname,
+                'country'       => $author->country,
+            ];
+        });
+        return response()->json($fractal->createData($resource)->toArray(), 201);
     }
 
     public function editAuthor(Request $request)
@@ -103,7 +113,17 @@ class AuthorController extends Controller
                 'country'   => $request->country,
             ]);
 
-            return response()->json($author, 200);
+            $fractal = new Manager();
+
+            $resource = new Item($author, function(Author $author) {
+                return [
+                    'id'            => (int) $author->id,
+                    'name'          => $author->name,
+                    'surname'       => $author->surname,
+                    'country'       => $author->country,
+                ];
+            });
+            return response()->json($fractal->createData($resource)->toArray(), 201);
         } else {
             return response()->json(['message' => 'not found'], 404);
         }

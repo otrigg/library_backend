@@ -78,7 +78,19 @@ class BookController extends Controller
             'author_id' => $request->author_id
         ]);
 
-        return response()->json($book, 200);
+        $fractal = new Manager();
+
+        $resource = new Item($book, function(Book $book) {
+            return [
+                'id'        => (int) $book->id,
+                'title'     => $book->title,
+                'isbn'      => (int) $book->isbn,
+                'year'      => (int) $book->year,
+                'author'    => $book->author,
+            ];
+        });
+
+        return response()->json($fractal->createData($resource)->toArray(), 201);
     }
 
     public function editBook(Request $request) {
@@ -105,7 +117,21 @@ class BookController extends Controller
                 'isbn'      => $request->isbn,
                 'author_id' => $request->author_id
             ]);
-            return response()->json($book, 200);
+
+            $fractal = new Manager();
+
+            $resource = new Item($book, function(Book $book) {
+                return [
+                    'id'        => (int) $book->id,
+                    'title'     => $book->title,
+                    'isbn'      => (int) $book->isbn,
+                    'year'      => (int) $book->year,
+                    'author'    => $book->author,
+                ];
+            });
+
+            return response()->json($fractal->createData($resource)->toArray(), 200);
+
         } else {
             return response()->json(['message' => 'not found'], 404);
         }
