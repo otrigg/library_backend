@@ -5,19 +5,51 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use Illuminate\Support\Facades\Validator;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 
 use App\Models\Author;
 
 class BookController extends Controller
 {
     public function allBooks() {
-        return Book::all();
+        $fractal = new Manager();
+
+        $books = Book::all();
+
+        $resource = new Collection($books, function(Book $book) {
+            return [
+                'id'        => (int) $book->id,
+                'title'     => $book->title,
+                'isbn'      => (int) $book->isbn,
+                'year'      => (int) $book->year,
+                'author_id' => (int) $book->author_id,
+            ];
+        });
+
+
+        return response()->json($fractal->createData($resource)->toArray(), 200);
     }
 
     public function getBook($id) {
+        $fractal = new Manager();
+
         $book = Book::find($id);
         if($book) {
-            return response()->json($book, 200);
+            $fractal = new Manager();
+
+            $resource = new Item($book, function(Book $book) {
+                return [
+                    'id'        => (int) $book->id,
+                    'title'     => $book->title,
+                    'isbn'      => (int) $book->isbn,
+                    'year'      => (int) $book->year,
+                    'author'    => $book->author,
+                ];
+            });
+
+            return response()->json($fractal->createData($resource)->toArray(), 200);
         } else {
             return response()->json(['message' => 'not found'], 404);
         }

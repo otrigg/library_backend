@@ -6,41 +6,52 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Author;
 use App\Models\Book;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 
 class AuthorController extends Controller
 {
     public function allAuthors()
     {
         $authors = Author::all();
-        $result = array();
-        foreach ($authors as $author) {
-            $result[] = $this->authorWithBooks($author->id);
-        }
-        return response()->json($result, 200);
+
+        $fractal = new Manager();
+
+        $resource = new Collection($authors, function(Author $author) {
+            return [
+                'id'            => (int) $author->id,
+                'name'          => $author->name,
+                'surname'       => $author->surname,
+                'country'       => $author->country,
+                'books'         => $author->books,
+            ];
+        });
+
+
+        return response()->json($fractal->createData($resource)->toArray(), 200);
+
     }
 
     public function getAuthor($id)
     {
         $author = Author::find($id);
         if($author) {
-            return response()->json($this->authorWithBooks($id), 200);
+            $fractal = new Manager();
+
+            $resource = new Item($author, function(Author $author) {
+                return [
+                    'id'            => (int) $author->id,
+                    'name'          => $author->name,
+                    'surname'       => $author->surname,
+                    'country'       => $author->country,
+                    'books'         => $author->books,
+                ];
+            });
+            return response()->json($fractal->createData($resource)->toArray(), 200);
         } else {
             return response()->json(['message' => 'not found'], 404);
         }
-    }
-
-    public function authorWithBooks($id)
-    {
-        $author = Author::find($id);
-        $books = Book::where('author_id', $author->id)
-            ->get(['id', 'title', 'year', 'isbn']);
-
-        $authorWithBooks = [
-            'author'    => $author,
-            'books'     => $books
-        ];
-
-        return $authorWithBooks;
     }
 
     public function addAuthor(Request $request)
