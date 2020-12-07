@@ -18,6 +18,7 @@ class CreateBooksTable extends Migration
             $table->bigInteger('author_id')->unsigned();
             $table->string('title');
             $table->string('isbn');
+            $table->string('year');
             $table->timestamps();
             $table->foreign('author_id')
                 ->references('id')
