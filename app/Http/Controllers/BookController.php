@@ -12,9 +12,10 @@ class BookController extends Controller
         return Book::all();
     }
 
-    public function getAuthor($id) {
-        $books = Author::find($id);
-        return response()->json($books, 200);
+    public function getBook($id) {
+        $book = Book::find($id);
+
+        return response()->json($book, 200);
     }
 
     public function addBook(Request $request) {

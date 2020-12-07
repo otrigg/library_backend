@@ -18,13 +18,21 @@ use App\Http\Controllers\AuthorController;
 */
 
 Route::get('books', [BookController::class, 'allBooks']);
+Route::get('book/{id}', [BookController::class, 'getBook']);
+
 Route::get('authors', [AuthorController::class, 'allAuthors']);
+Route::get('author/{id}', [AuthorController::class, 'getAuthor']);
 
 Route::middleware(['auth:api', 'admin'])->group(function(){
 
     Route::post('book', [BookController::class, 'addBook']);
     Route::patch('book/{id}', [BookController::class, 'editBook']);
     Route::delete('book/{id}', [BookController::class, 'deleteBook']);
+
+    Route::post('author', [AuthorController::class, 'addAuthor']);
+    Route::patch('author/{id}', [AuthorController::class, 'editAuthor']);
+    Route::delete('author/{id}', [AuthorController::class, 'deleteAuthor']);
+
 });
 
 
